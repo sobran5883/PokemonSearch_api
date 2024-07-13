@@ -4,9 +4,11 @@ import PokemonCard from '../components/PokemonCard';
 import bg1 from '../assets/home/bg1.png';
 import bg2 from '../assets/home/bg2.png';
 
-const Home = ({ searchQuery }) => {
+const Home = () => {
   const [pokemonData, setPokemonData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchPokemonData = async () => {
@@ -21,11 +23,17 @@ const Home = ({ searchQuery }) => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching the Pokémon data:', error);
+        setError('Error fetching the Pokémon data');
+        setLoading(false);
       }
     };
 
     fetchPokemonData();
   }, []);
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
   const filteredPokemon = pokemonData.filter(pokemon => {
     const query = searchQuery.toLowerCase();
@@ -41,12 +49,29 @@ const Home = ({ searchQuery }) => {
     return <div className="text-center text-xl mt-20">Loading...</div>;
   }
 
+  if (error) {
+    return <div className="text-center text-xl mt-20 text-red-600">{error}</div>;
+  }
+
   return (
-    <div className='w-full bg-[#211E32] min-h-[100vh] h-fit flex flex-col items-center'>
-      <div className='w-full relative opacity-30'>
-        <img className='absolute right-0 top-0' src={bg1} alt="" />
-      </div>
-      <div className="w-10/12 md:mt-16 flex items-center flex-col text-center relative z-10">
+    <div className='w-full bg-black/80 min-h-[100vh] h-fit flex flex-col items-center'>
+      <header className="md:w-10/12 w-11/12 justify-between mt-4 md:mt-10">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-white font-bold text-lg md:text-4xl">Pok<span className="text-red-400">emon</span></h1>
+          </div>
+          <div className="flex md:justify-end">
+            <input
+              className='px-1 md:px-2 py-1 md:py-2 text-sm md:rounded-md outline-none bg-transparent text-white border md:border-2 border-red-400'
+              type="text"
+              placeholder='Search here...'
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </div>
+        </div>
+      </header>
+      <div className="w-10/12 mt-4 md:mt-8 flex items-center flex-col text-center relative z-10">
         <div className="w-full">
           <div className="flex flex-wrap justify-center">
             {filteredPokemon.length > 0 ? (
@@ -58,9 +83,6 @@ const Home = ({ searchQuery }) => {
             )}
           </div>
         </div>
-      </div>
-      <div className='w-full relative opacity-30'>
-        <img className='absolute left-0 bottom-0' src={bg2} alt="" />
       </div>
     </div>
   );
